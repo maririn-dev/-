@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <title>戦国守 ─ せんごくしゅ ─</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== ローディング画面 ===== -->
+<div id="screen-loading" class="screen active">
+  <div class="loading-inner">
+    <div class="pixel-castle-anim">🏯</div>
+    <div class="loading-title">戦国守</div>
+    <div class="loading-sub">せんごくしゅ</div>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar" id="loading-bar"></div>
+    </div>
+    <div class="loading-msg" id="loading-msg">読み込み中...</div>
+  </div>
+</div>
+
+<!-- ===== ホーム画面 ===== -->
+<div id="screen-home" class="screen">
+  <div class="screen-header">
+    <div class="title-main pixel-font">戦国守</div>
+    <div class="title-sub">せんごくしゅ</div>
+  </div>
+
+  <!-- プレイヤー情報パネル -->
+  <div class="panel player-panel" id="home-player-panel">
+    <div class="panel-title">🎌 我が勢力</div>
+    <div class="player-info-grid">
+      <div class="info-item">
+        <span class="info-label">武将</span>
+        <span class="info-val" id="home-player-name">─</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">城数</span>
+        <span class="info-val" id="home-castle-count">0</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">戦力</span>
+        <span class="info-val" id="home-power">0</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">残り年</span>
+        <span class="info-val" id="home-years-left">5</span>
+      </div>
+    </div>
+    <!-- 所有城一覧 -->
+    <div class="castle-list-label">所有城：</div>
+    <div id="home-castle-list" class="castle-chip-list"></div>
+  </div>
+
+  <!-- メインメニュー -->
+  <div class="main-menu">
+    <button class="btn btn-primary btn-xl" id="btn-new-game">🗡 新規ゲーム開始</button>
+    <button class="btn btn-secondary btn-xl" id="btn-continue" disabled>⚔ 続きから遊ぶ</button>
+    <button class="btn btn-outline btn-xl" id="btn-settings-home">⚙ 設定</button>
+    <button class="btn btn-outline btn-xl" id="btn-ranking-home">🏆 記録</button>
+  </div>
+
+  <!-- バージョン -->
+  <div class="version-label">ver 1.0.0</div>
+</div>
+
+<!-- ===== 武将選択画面 ===== -->
+<div id="screen-select" class="screen">
+  <div class="screen-header">
+    <div class="title-main pixel-font small">武将を選べ</div>
+  </div>
+  <div class="select-intro">汝はいかなる武将となるか？</div>
+  <div id="warrior-grid" class="warrior-grid"></div>
+  <div class="select-nav">
+    <button class="btn btn-outline" id="btn-select-back">← 戻る</button>
+  </div>
+</div>
+
+<!-- ===== バトル画面 ===== -->
+<div id="screen-battle" class="screen">
+  <!-- ヘッダー -->
+  <div class="battle-header">
+    <div class="battle-title pixel-font">⚔ 戦場</div>
+    <div class="battle-status-bar">
+      <span id="b-player-name" class="b-name">─</span>
+      <span id="b-year" class="b-year">1年目</span>
+      <span id="b-castles" class="b-castles">城: 0</span>
+      <span id="b-power" class="b-power">戦力: 0</span>
+    </div>
+  </div>
+
+  <!-- タブナビゲーション -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="map">🗺 地図</button>
+    <button class="tab-btn" data-tab="trade">🔄 武士交換</button>
+    <button class="tab-btn" data-tab="status">📊 状勢</button>
+  </div>
+
+  <!-- タブ: 地図 (城攻め) -->
+  <div class="tab-content active" id="tab-map">
+    <div class="map-intro">攻める城を選べ。勝てば城を奪う。</div>
+    <div id="castle-map" class="castle-map"></div>
+    <div class="turn-actions">
+      <button class="btn btn-primary" id="btn-end-year">📅 年を終える</button>
+    </div>
+  </div>
+
+  <!-- タブ: 武士トレード -->
+  <div class="tab-content" id="tab-trade">
+    <div class="trade-intro">
+      <div class="trade-warn">⚠ 注意：一定確率で謀反が起きます！</div>
+      <div class="trade-desc">武士を交換して戦力を強化せよ。ただし謀反に注意。</div>
+    </div>
+    <div id="trade-warriors-list" class="trade-list"></div>
+    <div class="trade-my-warriors">
+      <div class="trade-section-title">🎌 わが武士団</div>
+      <div id="my-warriors-list" class="my-warriors-grid"></div>
+    </div>
+  </div>
+
+  <!-- タブ: 状勢 -->
+  <div class="tab-content" id="tab-status">
+    <div class="status-section">
+      <div class="status-title">🏯 所有城一覧</div>
+      <div id="status-castle-list" class="status-castle-list"></div>
+    </div>
+    <div class="status-section">
+      <div class="status-title">👥 武士団</div>
+      <div id="status-warrior-list" class="status-warrior-list"></div>
+    </div>
+    <div class="status-section">
+      <div class="status-title">⏳ ゲーム進行</div>
+      <div id="status-progress" class="status-progress-wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== クイズモーダル ===== -->
+<div id="modal-quiz" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header pixel-font">⚔ 戦が始まる！</div>
+    <div class="quiz-battle-info" id="quiz-battle-info"></div>
+    <div class="quiz-question" id="quiz-question"></div>
+    <div class="quiz-hint" id="quiz-hint"></div>
+    <div id="quiz-choices" class="quiz-choices"></div>
+    <div class="quiz-feedback hidden" id="quiz-feedback"></div>
+  </div>
+</div>
+
+<!-- ===== トレード確認モーダル ===== -->
+<div id="modal-trade" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header pixel-font">🔄 武士交換</div>
+    <div id="trade-detail" class="trade-detail"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="btn-trade-confirm">交換する</button>
+      <button class="btn btn-outline" id="btn-trade-cancel">やめる</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 謀反モーダル ===== -->
+<div id="modal-rebellion" class="modal-overlay hidden">
+  <div class="modal-box rebellion-box">
+    <div class="modal-header pixel-font red-flash">💀 謀反！</div>
+    <div id="rebellion-detail" class="rebellion-detail"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="btn-rebellion-ok">受け入れる</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 年終了モーダル ===== -->
+<div id="modal-year-end" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header pixel-font" id="year-end-title">📅 年が終わる</div>
+    <div id="year-end-summary" class="year-end-summary"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="btn-next-year">次の年へ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ゲーム終了モーダル ===== -->
+<div id="modal-game-end" class="modal-overlay hidden">
+  <div class="modal-box game-end-box">
+    <div class="modal-header pixel-font" id="game-end-title">🏆 天下分け目！</div>
+    <div id="game-end-content" class="game-end-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="btn-game-end-home">🏠 ホームへ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 設定画面 ===== -->
+<div id="screen-settings" class="screen">
+  <div class="screen-header">
+    <div class="title-main pixel-font small">⚙ 設定</div>
+  </div>
+
+  <div class="settings-list">
+    <!-- 音設定 -->
+    <div class="settings-group">
+      <div class="settings-group-title">🔊 サウンド</div>
+      <div class="settings-row">
+        <span class="settings-label">効果音</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle-se" checked />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ゲーム設定 -->
+    <div class="settings-group">
+      <div class="settings-group-title">🎮 ゲーム設定</div>
+      <div class="settings-row">
+        <span class="settings-label">年数上限</span>
+        <div class="settings-control">
+          <select id="select-max-years" class="settings-select">
+            <option value="3">3年</option>
+            <option value="4">4年</option>
+            <option value="5" selected>5年</option>
+          </select>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">難易度</span>
+        <div class="settings-control">
+          <select id="select-difficulty" class="settings-select">
+            <option value="easy">易しい</option>
+            <option value="normal" selected>普通</option>
+            <option value="hard">難しい</option>
+          </select>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">文字サイズ</span>
+        <div class="settings-control">
+          <select id="select-font-size" class="settings-select">
+            <option value="normal">普通</option>
+            <option value="large" selected>大きい</option>
+            <option value="xlarge">特大</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- データ -->
+    <div class="settings-group">
+      <div class="settings-group-title">💾 データ</div>
+      <div class="settings-row">
+        <span class="settings-label">セーブデータ削除</span>
+        <button class="btn btn-danger-sm" id="btn-delete-save">削除</button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">記録リセット</span>
+        <button class="btn btn-danger-sm" id="btn-reset-ranking">リセット</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-nav">
+    <button class="btn btn-outline" id="btn-settings-back">← 戻る</button>
+  </div>
+</div>
+
+<!-- ===== 記録画面 ===== -->
+<div id="screen-ranking" class="screen">
+  <div class="screen-header">
+    <div class="title-main pixel-font small">🏆 記録</div>
+  </div>
+  <div id="ranking-list" class="ranking-list"></div>
+  <div class="settings-nav">
+    <button class="btn btn-outline" id="btn-ranking-back">← 戻る</button>
+  </div>
+</div>
+
+<!-- ===== トースト通知 ===== -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- JavaScript -->
+<script src="game.js"></script>
+</body>
+</html>
